@@ -19,11 +19,12 @@ end
 
 # Defining the Mastermind game board
 class GameBoard
-  attr_accessor :turn
+  attr_accessor :colours, :turn
   attr_reader :board_state
 
   def initialize
     @board_state = Array.new(4) { Cell.new }
+    @colours = %w[red blue yellow purple green orange black white]
     @turn = 1
   end
 
@@ -36,6 +37,23 @@ class GameBoard
   end
 end
 
-p mastermind = GameBoard.new
-p mastermind.update_cell(1, "purple")
-p mastermind.print_board
+# Defining Mastermind game mechanics
+class Game < GameBoard
+  attr_reader :colour_code
+
+  def initialize
+    super
+    @colour_code = Array.new(4) { Cell.new }
+  end
+
+  def colour_code_generator
+    colour_code[0].symbol = @colours.sample
+    colour_code[1].symbol = @colours.sample
+    colour_code[2].symbol = @colours.sample
+    colour_code[3].symbol = @colours.sample
+  end
+end
+
+p mastermind = Game.new
+mastermind.colour_code_generator
+p mastermind.colour_code
