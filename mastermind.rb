@@ -25,7 +25,9 @@ class GameBoard
   def initialize
     @board_state = Array.new(4) { Cell.new }
     @colours = %w[red blue yellow purple green orange black white]
-    @turn = 1
+    @entered_colour = ' '
+    @index = 0
+    @turn = 0
   end
 
   def update_cell(index, colour)
@@ -37,7 +39,7 @@ class GameBoard
   end
 end
 
-# Defining Mastermind game mechanics
+# Defining the Mastermind game mechanics
 class Game < GameBoard
   attr_reader :colour_code
 
@@ -52,8 +54,48 @@ class Game < GameBoard
     colour_code[2].symbol = @colours.sample
     colour_code[3].symbol = @colours.sample
   end
+
+  def print_colour_code
+    print "| #{colour_code[0]} | #{colour_code[1]} | #{colour_code[2]} | #{colour_code[3]} |\n\n"
+  end
+
+  def mastermind_winning_condition
+    if @board_state == @colour_code
+      puts "Congratulations! You have successfully guessed your given colour code in #{@turn} turns!"
+    elsif turn > 12
+      puts 'Sorry! You have failed to successfully guess your given colour code within 12 turns, the solution was:'
+      print_colour_code
+    else
+      colour_code_guesser
+      @turn += 1
+    end
+  end
+
+  def colour_code_guesser
+    until @board_state[0].free? == false && @board_state[1].free? == false && @board_state[2].free? == false && @board_state[3].free? == false
+      @index = gets.chomp.to_i
+      until @index.negative? == false && @index < 4
+        puts 'The entered given index value is out of range!'
+        @index = gets.chomp.to_i
+      end
+
+      @entered_colour = gets.chomp
+      until @entered_colour == colours[0] || @entered_colour == colours[1] || @entered_colour == colours[2] || @entered_colour == colours[3] || @entered_colour == colours[4] || @entered_colour == colours[5] || @entered_colour == colours[6] || @entered_colour == colours[7]
+        puts 'The entered given colour is invalid!'
+        @entered_colour = gets.chomp
+      end
+
+      puts update_cell(@index, @entered_colour)
+      print_board
+    end
+  end
+
+  def mastermind_game
+    colour_code_generator
+    colour_code_guesser
+    mastermind_winning_condition
+  end
 end
 
-p mastermind = Game.new
-mastermind.colour_code_generator
-p mastermind.colour_code
+mastermind = Game.new
+mastermind.mastermind_game
