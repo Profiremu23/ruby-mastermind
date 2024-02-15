@@ -43,11 +43,12 @@ end
 
 # Defining the Mastermind game mechanics
 class Game < GameBoard
-  attr_reader :colour_code
+  attr_reader :colour_code, :matching_code
 
   def initialize
     super
     @colour_code = Array.new(4) { Cell.new }
+    @matching_code = Array.new(4) { Cell.new }
   end
 
   def guesser_code_clearer
@@ -55,6 +56,13 @@ class Game < GameBoard
     guesser_code[1].symbol = nil
     guesser_code[2].symbol = nil
     guesser_code[3].symbol = nil
+  end
+
+  def matching_code_clearer
+    matching_code[0].symbol = nil
+    matching_code[1].symbol = nil
+    matching_code[2].symbol = nil
+    matching_code[3].symbol = nil
   end
 
   def colour_code_generator
@@ -68,16 +76,23 @@ class Game < GameBoard
     print "| #{colour_code[0]} | #{colour_code[1]} | #{colour_code[2]} | #{colour_code[3]} |\n\n"
   end
 
+  def print_matching_code
+    print "| #{matching_code[0]} | #{matching_code[1]} | #{matching_code[2]} | #{matching_code[3]} |\n\n"
+  end
+
   def colour_code_matching
     4.times do
       if @guesser_code[@ind].symbol == colour_code[@ind].symbol
+        @matching_code[@ind].symbol = 'white'
         @matches += 1
         @ind += 1
       else
+        @matching_code[@ind].symbol = 'black'
         @ind += 1
       end
     end
     puts "#{@matches} colours with their exact locations have been found"
+    print_matching_code 
     @matches = 0
     @ind = 0
   end
