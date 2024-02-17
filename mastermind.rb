@@ -13,11 +13,16 @@ class GameBoard
     @ind = 0
     @index = 0
     @matches = 0
-    @turn = 12
+    @player_role = ' '
+    @turn = 1
   end
 
   def update_cell(index, colour)
-    guesser_code[index] = colour
+    if @player_role == 'I am the creator for the colour code'
+      colour_code[index] = colour
+    elsif @player_role == 'I will solve the colour code by myself'
+      guesser_code[index] = colour
+    end
   end
 
   def print_board
@@ -35,6 +40,7 @@ class Game < GameBoard
     @matching_code = []
   end
 
+  # Basic Mastermind game logic
   def guesser_code_clearer
     guesser_code[0] = nil
     guesser_code[1] = nil
@@ -92,18 +98,65 @@ class Game < GameBoard
       puts "Congratulations! You have successfully guessed your given colour code in #{@turn} turns!"
       print_colour_code
     elsif @turn < 13 && @matches < 4
-      puts 'Your summitted code does not fully match with the mystery code!'
+      puts 'The summitted code does not fully match with the mystery code!'
       colour_code_matching
       @turn += 1
       guesser_code_clearer
-      colour_code_guesser
+      player_role_reminder
     else
       puts 'Sorry! You have failed to successfully guess your given colour code within 12 turns, the solution was:'
       print_colour_code
     end
   end
 
-  def colour_code_guesser
+  # Choosing the player's role in Mastermind
+  def player_role_selection
+    print "Please choose between the two rules you can take in Mastermind:\nEnter 'I am the creator for the colour code' if you want to make the secret colour code for a computer player to solve it,\n or type 'I will solve the colour code by myself' if you want to solve the (randomly generated) secret colour code\n"
+    @player_role = gets.chomp
+    if @player_role == 'I am the creator for the colour code'
+      player_colour_code_creator
+    elsif @player_role == 'I will solve the colour code by myself'
+      colour_code_generator
+      player_colour_code_guesser
+    else
+      puts 'Your answer is invalid! Please try again!'
+      @player_role = gets.chomp
+    end
+  end
+
+  # Memorizing the player's role in a given game
+  def player_role_reminder
+    if @player_role == 'I am the creator for the colour code'
+      computer_colour_code_guesser
+    elsif @player_role == 'I will solve the colour code by myself'
+      player_colour_code_guesser
+    end
+  end
+
+  # Game mechanics for the player
+  def player_colour_code_creator
+    until @colour_code[0].nil? == false && @colour_code[1].nil? == false && @colour_code[2].nil? == false && @colour_code[3].nil? == false
+      print 'Please enter an index to place your colour for your colour code: '
+      @index = gets.chomp.to_i
+      until @index.negative? == false && @index < 4
+        puts 'The entered given index value is out of range!'
+        @index = gets.chomp.to_i
+      end
+
+      print "Please enter a colour for your chosen index (#{@index}) within your colour code: "
+      @entered_colour = gets.chomp
+      until @entered_colour == colours[0] || @entered_colour == colours[1] || @entered_colour == colours[2] || @entered_colour == colours[3] || @entered_colour == colours[4] || @entered_colour == colours[5] || @entered_colour == colours[6] || @entered_colour == colours[7]
+        puts 'The entered given colour is invalid!'
+        @entered_colour = gets.chomp
+      end
+
+      puts update_cell(@index, @entered_colour)
+      print_colour_code
+    end
+    computer_colour_code_guesser
+  end
+
+  def player_colour_code_guesser
     puts "\nGuess #{@turn} out of 12"
 
     until @guesser_code[0].nil? == false && @guesser_code[1].nil? == false && @guesser_code[2].nil? == false && @guesser_code[3].nil? == false
@@ -127,9 +180,21 @@ class Game < GameBoard
     mastermind_winning_condition
   end
 
+  # Game mechanics for the AI
+  def computer_colour_code_guesser
+    puts "\nGuess #{@turn} out of 12"
+    @guesser_code[0] = @colours.sample
+    @guesser_code[1] = @colours.sample
+    @guesser_code[2] = @colours.sample
+    @guesser_code[3] = @colours.sample
+    puts 'Your computer has made a guess with the following code:'
+    print_board
+    mastermind_winning_condition
+  end
+
+  # Initializing the game
   def mastermind_game
-    colour_code_generator
-    colour_code_guesser
+    player_role_selection
   end
 end
 
