@@ -18,11 +18,10 @@ class GameBoard
   end
 
   def update_cell(index, colour)
-    if @player_role == 'I am the creator for the colour code'
+    if @player_role == 'I am the creator'
       colour_code[index] = colour
-    elsif @player_role == 'I will solve the colour code by myself'
+    elsif @player_role == 'I am the solver'
       guesser_code[index] = colour
-    end
   end
 
   def print_board
@@ -37,7 +36,7 @@ class Game < GameBoard
   def initialize
     super
     @colour_code = Array.new(4)
-    @matching_code = []
+    @matching_code = Array.new(4)
   end
 
   # Basic Mastermind game logic
@@ -73,17 +72,10 @@ class Game < GameBoard
   def colour_code_matching
     4.times do
       if @guesser_code[@ind] == colour_code[@ind]
-        @matching_code << 'white'
+        @matching_code[@ind] = 'white'
         @matches += 1
       else
-        4.times do
-          if @colour_code.include?(@guesser_code[@ind]) == true && (@guesser_code[@ind] = colour_code[@i] == false)
-            @matching_code << 'black'
-          else
-            @matching_code << ' '
-          end
-          @i += 1
-        end
+        @matching_code[@ind] = 'black'
       end
       @ind += 1
     end
@@ -97,12 +89,12 @@ class Game < GameBoard
     if @matches == 4
       puts "Congratulations! You have successfully guessed your given colour code in #{@turn} turns!"
       print_colour_code
-    elsif @turn < 13 && @matches < 4
+    elsif @turn < 12 && @matches < 4
       puts 'The summitted code does not fully match with the mystery code!'
-      colour_code_matching
       @turn += 1
       guesser_code_clearer
       player_role_reminder
+      matching_code_clearer
     else
       puts 'Sorry! You have failed to successfully guess your given colour code within 12 turns, the solution was:'
       print_colour_code
@@ -111,11 +103,11 @@ class Game < GameBoard
 
   # Choosing the player's role in Mastermind
   def player_role_selection
-    print "Please choose between the two rules you can take in Mastermind:\nEnter 'I am the creator for the colour code' if you want to make the secret colour code for a computer player to solve it,\n or type 'I will solve the colour code by myself' if you want to solve the (randomly generated) secret colour code\n"
+    print "Please choose between the two rules you can take in Mastermind:\nEnter 'I am the creator' if you want to make the secret colour code for a computer player to solve it,\n or type 'I am the solver' if you want to solve the (randomly generated) secret colour code\n"
     @player_role = gets.chomp
-    if @player_role == 'I am the creator for the colour code'
+    if @player_role == 'I am the creator'
       player_colour_code_creator
-    elsif @player_role == 'I will solve the colour code by myself'
+    elsif @player_role == 'I am the solver'
       colour_code_generator
       player_colour_code_guesser
     else
@@ -126,9 +118,9 @@ class Game < GameBoard
 
   # Memorizing the player's role in a given game
   def player_role_reminder
-    if @player_role == 'I am the creator for the colour code'
+    if @player_role == 'I am the creator'
       computer_colour_code_guesser
-    elsif @player_role == 'I will solve the colour code by myself'
+    elsif @player_role == 'I am the solver'
       player_colour_code_guesser
     end
   end
@@ -177,6 +169,7 @@ class Game < GameBoard
       puts update_cell(@index, @entered_colour)
       print_board
     end
+    colour_code_matching
     mastermind_winning_condition
   end
 
@@ -189,6 +182,7 @@ class Game < GameBoard
     @guesser_code[3] = @colours.sample
     puts 'Your computer has made a guess with the following code:'
     print_board
+    colour_code_matching
     mastermind_winning_condition
   end
 
