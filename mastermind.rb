@@ -22,6 +22,7 @@ class GameBoard
       colour_code[index] = colour
     elsif @player_role == 'I am the solver'
       guesser_code[index] = colour
+    end
   end
 
   def print_board
