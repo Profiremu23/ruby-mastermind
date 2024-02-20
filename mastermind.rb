@@ -12,7 +12,6 @@ class GameBoard
     @i = 0
     @ind = 0
     @index = 0
-    @matches = 0
     @player_role = ' '
     @turn = 1
   end
@@ -67,37 +66,36 @@ class Game < GameBoard
   end
 
   def print_matching_code
-    print "| #{matching_code[0]} | #{matching_code[1]} | #{matching_code[2]} | #{matching_code[3]} |\n\n"
+    print "Matching palette: #{matching_code[0]}#{matching_code[1]}#{matching_code[2]}#{matching_code[3]}\n\n"
   end
 
   def colour_code_matching
     4.times do
       if @guesser_code[@ind] == colour_code[@ind]
-        @matching_code[@ind] = 'white'
-        @matches += 1
+        @matching_code[@ind] = 'white '
+      elsif @guesser_code[@ind] != colour_code[@ind] && colour_code.include?(@guesser_code[@ind])
+        @matching_code[@ind] = 'black '
       else
-        @matching_code[@ind] = 'black'
+        @matching_code[@ind] = ''
       end
       @ind += 1
     end
-    puts "#{@matches} colours with their exact locations have been found"
     print_matching_code
-    @matches = 0
     @ind = 0
   end
 
   def mastermind_winning_condition
-    if @matches == 4
-      puts "Congratulations! You have successfully guessed your given colour code in #{@turn} turns!"
+    if @guesser_code == @colour_code
+      puts "Congratulations! You have successfully solved the mystery code in #{@turn} turns!"
       print_colour_code
-    elsif @turn < 12 && @matches < 4
+    elsif @turn < 12
       puts 'The summitted code does not fully match with the mystery code!'
       @turn += 1
       guesser_code_clearer
       player_role_reminder
       matching_code_clearer
     else
-      puts 'Sorry! You have failed to successfully guess your given colour code within 12 turns, the solution was:'
+      puts 'Sorry! You have failed to successfully solve the mystery code within 12 turns, the solution was:'
       print_colour_code
     end
   end
