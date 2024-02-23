@@ -37,6 +37,7 @@ class Game < GameBoard
     super
     @colour_code = Array.new(4)
     @matching_code = Array.new(4)
+    @computer_memory_code = Array.new(4)
   end
 
   # Basic Mastermind game logic
@@ -175,14 +176,30 @@ class Game < GameBoard
   # Game mechanics for the AI
   def computer_colour_code_guesser
     puts "\nGuess #{@turn} out of 12"
-    @guesser_code[0] = @colours.sample
-    @guesser_code[1] = @colours.sample
-    @guesser_code[2] = @colours.sample
-    @guesser_code[3] = @colours.sample
+    4.times do
+      if @computer_memory_code[@i].nil? == true
+        @guesser_code[@i] = @colours.sample
+      else
+        @guesser_code[@i] = @computer_memory_code[@i]
+      end
+      @i += 1
+    end
+    @i = 0
     puts 'Your computer has made a guess with the following code:'
     print_board
+    computer_guessing_memory
     colour_code_matching
     mastermind_winning_condition
+  end
+
+  def computer_guessing_memory
+    4.times do
+      if @guesser_code[@ind] == colour_code[@ind]
+        @computer_memory_code[@ind] = @guesser_code[@ind]
+      end
+      @ind += 1
+    end
+    @ind = 0
   end
 
   # Initializing the game
