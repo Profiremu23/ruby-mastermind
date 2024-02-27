@@ -31,13 +31,14 @@ end
 
 # Defining the Mastermind game mechanics
 class Game < GameBoard
-  attr_reader :colour_code, :matching_code
+  attr_reader :colour_code, :colour_blacklist, :matching_code
 
   def initialize
     super
     @colour_code = Array.new(4)
     @matching_code = Array.new(4)
     @computer_memory_code = Array.new(4)
+    @colour_blacklist = Array.new(4) { Array.new }
   end
 
   # Basic Mastermind game logic
@@ -177,13 +178,24 @@ class Game < GameBoard
   def computer_colour_code_guesser
     puts "\nGuess #{@turn} out of 12"
     4.times do
-      if @computer_memory_code[@i].nil? == true
-        @guesser_code[@i] = @colours.sample
+      if @computer_memory_code[@i].nil?
+        if @colour_blacklist[@i].count.zero?
+          @guesser_code[@i] = @colours.sample
+        else
+          @colour_blacklist[@i].count do
+            @colours.delete(@colour_blacklist[@i][@ind])
+            @ind += 1
+          end
+          @colours.compact!
+          @guesser_code[@i] = @colours.sample
+          @ind = 0
+        end
       else
         @guesser_code[@i] = @computer_memory_code[@i]
       end
       @i += 1
     end
+    @colours = %w[red blue yellow purple green orange black white]
     @i = 0
     puts 'Your computer has made a guess with the following code:'
     print_board
@@ -196,6 +208,8 @@ class Game < GameBoard
     4.times do
       if @guesser_code[@ind] == colour_code[@ind]
         @computer_memory_code[@ind] = @guesser_code[@ind]
+      else
+        @colour_blacklist[@ind].push(@guesser_code[@ind])
       end
       @ind += 1
     end
