@@ -37,8 +37,11 @@ class Game < GameBoard
     super
     @colour_code = Array.new(4)
     @matching_code = Array.new(4)
-    @computer_memory_code = Array.new(4)
-    @colour_blacklist = Array.new(4) { Array.new }
+    @numbers = [0, 1, 2, 3, 4, 5, 6, 7]
+    @guesses = Array.new(4) { [] }
+    @guess_pool = Set.new
+    @numbers.repeated_permutation(4).each { |premutation| @guess_pool << premutation }
+    @ai_guess = Array.new(4)
   end
 
   # Basic Mastermind game logic
@@ -177,42 +180,38 @@ class Game < GameBoard
   # Game mechanics for the AI
   def computer_colour_code_guesser
     puts "\nGuess #{@turn} out of 12"
+    if @turn == 1
+      @ai_guess = [0, 0, 1, 1]
+    else
+      @ai_guess = @guess_pool.to_a.sample
+      @guess_pool.to_set
+    end
     4.times do
-      if @computer_memory_code[@i].nil?
-        if @colour_blacklist[@i].count.zero?
-          @guesser_code[@i] = @colours.sample
-        else
-          @colour_blacklist[@i].count do
-            @colours.delete(@colour_blacklist[@i][@ind])
-            @ind += 1
-          end
-          @colours.compact!
-          @guesser_code[@i] = @colours.sample
-          @ind = 0
-        end
-      else
-        @guesser_code[@i] = @computer_memory_code[@i]
-      end
+      @guesser_code[@i] = @colours[@ai_guess[@i]]
+      @guesses[@i] << @ai_guess[@i]
       @i += 1
     end
-    @colours = %w[red blue yellow purple green orange black white]
     @i = 0
     puts 'Your computer has made a guess with the following code:'
     print_board
-    computer_guessing_memory
     colour_code_matching
     mastermind_winning_condition
+    guess_pool_cutter
+    @ai_guess = []
+    p @guesses
   end
 
-  def computer_guessing_memory
+  def guess_pool_cutter
+    @guess_pool.delete(@ai_guess)
     4.times do
-      if @guesser_code[@ind] == colour_code[@ind]
-        @computer_memory_code[@ind] = @guesser_code[@ind]
-      else
-        @colour_blacklist[@ind].push(@guesser_code[@ind])
+      @guesses[@i].count do
+        @guess_pool.delete_if { |array| array[@i] == @guesses[@i][@ind] }
+        @ind += 1
       end
-      @ind += 1
+      @i += 1
+      @ind = 0
     end
+    @i = 0
     @ind = 0
   end
 
