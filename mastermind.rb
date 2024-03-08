@@ -37,11 +37,9 @@ class Game < GameBoard
     super
     @colour_code = Array.new(4)
     @matching_code = Array.new(4)
-    @numbers = [0, 1, 2, 3, 4, 5, 6, 7]
-    @guesses = Array.new(4) { [] }
+    @bad_guesses = Array.new(4) { [] }
     @guess_pool = Set.new
-    @numbers.repeated_permutation(4).each { |premutation| @guess_pool << premutation }
-    @ai_guess = Array.new(4)
+    @colours.repeated_permutation(4).each { |premutation| @guess_pool << premutation }
   end
 
   # Basic Mastermind game logic
@@ -181,31 +179,32 @@ class Game < GameBoard
   def computer_colour_code_guesser
     puts "\nGuess #{@turn} out of 12"
     if @turn == 1
-      @ai_guess = [0, 0, 1, 1]
+      @guesser_code = %w[red red blue blue]
     else
-      @ai_guess = @guess_pool.to_a.sample
+      @guesser_code = @guess_pool.to_a.sample
       @guess_pool.to_set
     end
     4.times do
-      @guesser_code[@i] = @colours[@ai_guess[@i]]
-      @guesses[@i] << @ai_guess[@i]
-      @i += 1
+      if @guesser_code[@ind] != @colour_code[@ind]
+        @bad_guesses[@ind] << @guesser_code[@ind]
+      else
+        @bad_guesses[@ind] << nil
+      end
+      @ind += 1
     end
-    @i = 0
+    @ind = 0
     puts 'Your computer has made a guess with the following code:'
+    p @bad_guesses
     print_board
     colour_code_matching
-    mastermind_winning_condition
     guess_pool_cutter
-    @ai_guess = []
-    p @guesses
+    mastermind_winning_condition
   end
 
   def guess_pool_cutter
-    @guess_pool.delete(@ai_guess)
     4.times do
-      @guesses[@i].count do
-        @guess_pool.delete_if { |array| array[@i] == @guesses[@i][@ind] }
+      @bad_guesses[@i].count do
+        @guess_pool.delete_if { |array| array[@i] == @bad_guesses[@i][@ind] }
         @ind += 1
       end
       @i += 1
