@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-# Defining the Mastermind game board
+### Defining the Mastermind game board
 class GameBoard
   attr_accessor :colours, :turn
   attr_reader :guesser_code
 
+  # Initializing the variables
   def initialize
     @guesser_code = Array.new(4)
     @colours = %w[red blue yellow purple green orange black white]
@@ -16,6 +17,7 @@ class GameBoard
     @turn = 1
   end
 
+  # Updating a given cell's colour for the colour code creation and guessing mechanics
   def update_cell(index, colour)
     if @player_role == 'I am the creator'
       colour_code[index] = colour
@@ -24,12 +26,13 @@ class GameBoard
     end
   end
 
+
   def print_board
     print "\n| #{guesser_code[0]} | #{guesser_code[1]} | #{guesser_code[2]} | #{guesser_code[3]} |\n\n"
   end
 end
 
-# Defining the Mastermind game mechanics
+### Defining the Mastermind game mechanics
 class Game < GameBoard
   attr_reader :colour_code, :colour_blacklist, :matching_code
 
@@ -42,7 +45,8 @@ class Game < GameBoard
     @colours.repeated_permutation(4).each { |premutation| @guess_pool << premutation }
   end
 
-  # Basic Mastermind game logic
+  ## Basic Mastermind game logic
+  # Colour code cleaning methods
   def guesser_code_clearer
     guesser_code[0] = nil
     guesser_code[1] = nil
@@ -57,6 +61,7 @@ class Game < GameBoard
     matching_code[3] = nil
   end
 
+  # Colour code generator for a guessing player
   def colour_code_generator
     colour_code[0] = @colours.sample
     colour_code[1] = @colours.sample
@@ -64,6 +69,7 @@ class Game < GameBoard
     colour_code[3] = @colours.sample
   end
 
+  # Colour and matching code printing
   def print_colour_code
     print "| #{colour_code[0]} | #{colour_code[1]} | #{colour_code[2]} | #{colour_code[3]} |\n\n"
   end
@@ -72,6 +78,7 @@ class Game < GameBoard
     print "Matching palette: #{matching_code[0]}#{matching_code[1]}#{matching_code[2]}#{matching_code[3]}\n\n"
   end
 
+  # Colour code matching method, it gives white for good colours and locations, black for good colours but with bad locations, blank for bad colours and locations
   def colour_code_matching
     4.times do
       if @guesser_code[@ind] == colour_code[@ind]
@@ -87,9 +94,27 @@ class Game < GameBoard
     @ind = 0
   end
 
+  # Winning and losing messages
+  def winning_message
+    if @player_role == 'I am the creator'
+      puts "Your computer has successfully solved the mystery code in #{@turn} turns!"
+    elsif @player_role == 'I am the solver'
+      puts "Congratulations! You have successfully solved the mystery code in #{@turn} turns!"
+    end
+  end
+
+  def losing_message
+    if @player_role == 'I am the creator'
+      puts 'Sorry! Your computer has failed to solve the mystery code within 12 turns, the solution was:'
+    elsif @player_role == 'I am the solver'
+      puts 'Sorry! You have failed to successfully solve the mystery code within 12 turns, the solution was:'
+    end
+  end
+
+  # The game continuation method
   def mastermind_winning_condition
     if @guesser_code == @colour_code
-      puts "Congratulations! You have successfully solved the mystery code in #{@turn} turns!"
+      winning_message
       print_colour_code
     elsif @turn < 12
       puts 'The summitted code does not fully match with the mystery code!'
@@ -98,7 +123,7 @@ class Game < GameBoard
       player_role_reminder
       matching_code_clearer
     else
-      puts 'Sorry! You have failed to successfully solve the mystery code within 12 turns, the solution was:'
+      losing_message
       print_colour_code
     end
   end
@@ -127,7 +152,8 @@ class Game < GameBoard
     end
   end
 
-  # Game mechanics for the player
+  ## Game mechanics for the player
+  # If the player has choosen the creator role in the start of the game
   def player_colour_code_creator
     until @colour_code[0].nil? == false && @colour_code[1].nil? == false && @colour_code[2].nil? == false && @colour_code[3].nil? == false
       print 'Please enter an index to place your colour for your colour code: '
@@ -150,6 +176,7 @@ class Game < GameBoard
     computer_colour_code_guesser
   end
 
+  # If the player has choosen the guesser role in the start of the game
   def player_colour_code_guesser
     puts "\nGuess #{@turn} out of 12"
 
@@ -175,7 +202,8 @@ class Game < GameBoard
     mastermind_winning_condition
   end
 
-  # Game mechanics for the AI
+  ## Game mechanics for the AI
+  # The computer's way of making a guess for the secret colour code
   def computer_colour_code_guesser
     puts "\nGuess #{@turn} out of 12"
     if @turn == 1
@@ -201,6 +229,7 @@ class Game < GameBoard
     mastermind_winning_condition
   end
 
+  # The guess pool shrinking mechanism, this method gets rid of guesses with bad colour guesses within that guess' index
   def guess_pool_cutter
     4.times do
       @bad_guesses[@i].count do
