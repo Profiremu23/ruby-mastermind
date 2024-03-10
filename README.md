@@ -1,2 +1,4 @@
 # ruby-mastermind
-My second OOP project made with Ruby for my Odin Project journey (TOP)
+My second OOP project made with Ruby for my Odin Project journey (TOP), which is a replica of the Mastermind board game. It has two game modes depending on what do you type for the first popup, if you type "I am the creator", you will gain the role on creating a secret colour code for your computer to solve with guesses by entering the positions and colours to the main colour code. If you typed "I am the guesser", you will receive a randomly generated secret colour code to solve by guessing the right colours and their positions within 12 turns. The game includes eight colours, four "holes" and 4096 possible combinations to test your (or your computer's) solving capabilities.
+## How do you run it?
+Just like with many other Ruby softwares, use Git or your local Linux/MacOS terminal, navigate to "../ruby-mastermind", then enter "ruby mastermind.rb" to run this wonderful piece of software. Have fun playing it!

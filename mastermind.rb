@@ -15,6 +15,11 @@ class GameBoard
     @index = 0
     @player_role = ' '
     @turn = 1
+    @colour_code = Array.new(4)
+    @matching_code = Array.new(4)
+    @bad_guesses = Array.new(4) { [] }
+    @guess_pool = Set.new
+    @colours.repeated_permutation(4).each { |premutation| @guess_pool << premutation }
   end
 
   # Updating a given cell's colour for the colour code creation and guessing mechanics
@@ -26,26 +31,19 @@ class GameBoard
     end
   end
 
-
+  # Colour and matching code printing
   def print_board
     print "\n| #{guesser_code[0]} | #{guesser_code[1]} | #{guesser_code[2]} | #{guesser_code[3]} |\n\n"
   end
-end
 
-### Defining the Mastermind game mechanics
-class Game < GameBoard
-  attr_reader :colour_code, :colour_blacklist, :matching_code
-
-  def initialize
-    super
-    @colour_code = Array.new(4)
-    @matching_code = Array.new(4)
-    @bad_guesses = Array.new(4) { [] }
-    @guess_pool = Set.new
-    @colours.repeated_permutation(4).each { |premutation| @guess_pool << premutation }
+  def print_colour_code
+    print "| #{colour_code[0]} | #{colour_code[1]} | #{colour_code[2]} | #{colour_code[3]} |\n\n"
   end
 
-  ## Basic Mastermind game logic
+  def print_matching_code
+    print "Matching palette: #{matching_code[0]}#{matching_code[1]}#{matching_code[2]}#{matching_code[3]}\n\n"
+  end
+
   # Colour code cleaning methods
   def guesser_code_clearer
     guesser_code[0] = nil
@@ -60,22 +58,19 @@ class Game < GameBoard
     matching_code[2] = nil
     matching_code[3] = nil
   end
+end
 
+### Defining the Mastermind game mechanics
+class Game < GameBoard
+  attr_reader :colour_code, :colour_blacklist, :matching_code
+
+  ## Basic Mastermind game logic
   # Colour code generator for a guessing player
   def colour_code_generator
     colour_code[0] = @colours.sample
     colour_code[1] = @colours.sample
     colour_code[2] = @colours.sample
     colour_code[3] = @colours.sample
-  end
-
-  # Colour and matching code printing
-  def print_colour_code
-    print "| #{colour_code[0]} | #{colour_code[1]} | #{colour_code[2]} | #{colour_code[3]} |\n\n"
-  end
-
-  def print_matching_code
-    print "Matching palette: #{matching_code[0]}#{matching_code[1]}#{matching_code[2]}#{matching_code[3]}\n\n"
   end
 
   # Colour code matching method, it gives white for good colours and locations, black for good colours but with bad locations, blank for bad colours and locations
@@ -222,7 +217,6 @@ class Game < GameBoard
     end
     @ind = 0
     puts 'Your computer has made a guess with the following code:'
-    p @bad_guesses
     print_board
     colour_code_matching
     guess_pool_cutter
